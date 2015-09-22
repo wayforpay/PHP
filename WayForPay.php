@@ -93,6 +93,7 @@ class WayForPay
      * MODE_PURCHASE
      * Generate html form
      *
+     * @param $fields
      * @return string
      */
     public function buildForm($fields)
