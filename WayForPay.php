@@ -260,7 +260,7 @@ class WayForPay
      */
     private function _getFieldsNameForSignature()
     {
-        $purchuseFieldsAlias = [
+        $purchuseFieldsAlias = array(
             'merchantAccount',
             'merchantDomainName',
             'orderReference',
@@ -270,35 +270,35 @@ class WayForPay
             'productName',
             'productCount',
             'productPrice'
-        ];
+        );
 
         switch ($this->_action) {
             case 'PURCHASE':
                 return $purchuseFieldsAlias;
                 break;
             case 'REFUND':
-                return [
+                return array(
                     'merchantAccount',
                     'orderReference',
                     'amount',
                     'currency'
-                ];
+                );
             case 'CHECK_STATUS':
-                return [
+                return array(
                     'merchantAccount',
                     'orderReference'
-                ];
+                );
                 break;
             case 'CHARGE':
                 return $purchuseFieldsAlias;
                 break;
             case 'SETTLE':
-                return [
+                return array(
                     'merchantAccount',
                     'orderReference',
                     'amount',
                     'currency'
-                ];
+                );
                 break;
             default:
                 throw new InvalidArgumentException('Unknown transaction type');
@@ -314,7 +314,7 @@ class WayForPay
     {
         switch ($this->_action) {
             case 'PURCHASE':
-                return [
+                return array(
                     'merchantAccount',
                     'merchantDomainName',
                     'merchantTransactionSecureType',
@@ -325,18 +325,18 @@ class WayForPay
                     'productName',
                     'productCount',
                     'productPrice'
-                ];
+                );
             case 'SETTLE':
-                return [
+                return array(
                     'transactionType',
                     'merchantAccount',
                     'orderReference',
                     'amount',
                     'currency',
                     'apiVersion'
-                ];
+                );
             case 'CHARGE':
-                $required = [
+                $required = array(
                     'transactionType',
                     'merchantAccount',
                     'merchantDomainName',
@@ -354,15 +354,15 @@ class WayForPay
                     'clientPhone',
                     'clientCountry',
                     'clientIpAddress'
-                ];
+                );
 
                 $additional = !empty($this->_params['recToken']) ?
-                    ['recToken'] :
-                    ['card', 'expMonth', 'expYear', 'cardCvv', 'cardHolder'];
+                    array('recToken') :
+                    array('card', 'expMonth', 'expYear', 'cardCvv', 'cardHolder');
 
                 return array_merge($required, $additional);
             case 'REFUND':
-                return [
+                return array(
                     'transactionType',
                     'merchantAccount',
                     'orderReference',
@@ -370,14 +370,14 @@ class WayForPay
                     'currency',
                     'comment',
                     'apiVersion'
-                ];
+                );
             case 'CHECK_STATUS':
-                return [
+                return array(
                     'transactionType',
                     'merchantAccount',
                     'orderReference',
                     'apiVersion'
-                ];
+                );
             default:
                 throw new InvalidArgumentException('Unknown transaction type');
         }
