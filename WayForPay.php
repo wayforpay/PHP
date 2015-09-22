@@ -170,7 +170,7 @@ class WayForPay
     private function _checkFields()
     {
         $required = $this->_getRequiredFields();
-        $error = [];
+        $error = array();
 
         foreach ($required as $item) {
             if (array_key_exists($item, $this->_params)) {
@@ -199,8 +199,8 @@ class WayForPay
     private function _buildSignature()
     {
         $signFields = $this->_getFieldsNameForSignature();
-        $data = [];
-        $error = [];
+        $data = array();
+        $error = array();
 
         foreach ($signFields as $item) {
             if (array_key_exists($item, $this->_params)) {
