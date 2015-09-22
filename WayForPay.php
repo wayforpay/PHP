@@ -9,6 +9,7 @@ class WayForPay
     const API_URL           = 'https://api.wayforpay.com/api';
     const FIELDS_DELIMITER  = ';';
     const API_VERSION       = 1;
+    const DEFAULT_CHARSET   = 'utf8';
 
     const MODE_PURCHASE     = 'PURCHASE';
     const MODE_SETTLE       = 'SETTLE';
@@ -20,14 +21,17 @@ class WayForPay
     private $_merchant_password;
     private $_action;
     private $_params;
+    private $_charset;
 
     /**
-     * Construct
+     * Init
      *
      * @param $merchant_account
      * @param $merchant_password
+     * @param string $charset
+     * @throws InvalidArgumentException
      */
-    public function __construct($merchant_account, $merchant_password)
+    public function __construct($merchant_account, $merchant_password, $charset = self::DEFAULT_CHARSET)
     {
         if (!is_string($merchant_account) || $merchant_account === '') {
             throw new InvalidArgumentException('Merchant account must be string and not empty');
@@ -39,6 +43,7 @@ class WayForPay
 
         $this->_merchant_account = $merchant_account;
         $this->_merchant_password = $merchant_password;
+        $this->_charset = $charset;
     }
 
     /**
@@ -207,6 +212,12 @@ class WayForPay
                 }
             } else {
                 $error[] = $item;
+            }
+        }
+
+        if ( $this->_charset != self::DEFAULT_CHARSET) {
+            foreach($data as $key => $value) {
+                $data[$key] = iconv($this->_charset, self::DEFAULT_CHARSET, $data[$key]);
             }
         }
 
