@@ -1,0 +1,6 @@
+{
+    "name": "wayforpay/php",
+    "description": "Wayforpay PHP API",
+    "license": "MIT",
+    "require": {}
+}
