@@ -18,6 +18,7 @@ class WayForPay
     const MODE_REFUND       = 'REFUND';
     const MODE_CHECK_STATUS = 'CHECK_STATUS';
     const MODE_P2P_CREDIT   = 'P2P_CREDIT';
+    const MODE_CREATE_INVOICE = 'CREATE_INVOICE';
 
     private $_merchant_account;
     private $_merchant_password;
@@ -105,6 +106,18 @@ class WayForPay
     public function account2card($fields)
     {
         $this->_prepare(self::MODE_P2P_CREDIT, $fields);
+        return $this->_query();
+    }
+
+    /**
+     * MODE_P2P_CREDIT
+     *
+     * @param $fields
+     * @return mixed
+     */
+    public function createInvoice($fields)
+    {
+        $this->_prepare(self::MODE_CREATE_INVOICE, $fields);
         return $this->_query();
     }
 
@@ -322,6 +335,9 @@ class WayForPay
                     'rec2Token',
                 );
                 break;
+            case self::MODE_CREATE_INVOICE:
+                return $purchaseFieldsAlias;
+                break;
             default:
                 throw new InvalidArgumentException('Unknown transaction type: '.$this->_action);
         }
@@ -409,6 +425,18 @@ class WayForPay
                     'currency',
                     'cardBeneficiary',
                     'merchantSignature',
+                );
+            case self::MODE_CREATE_INVOICE:
+                return array(
+                    'transactionType',
+                    'merchantAccount',
+                    'merchantDomainName',
+                    'orderReference',
+                    'amount',
+                    'currency',
+                    'productName',
+                    'productCount',
+                    'productPrice',
                 );
             default:
                 throw new InvalidArgumentException('Unknown transaction type');
