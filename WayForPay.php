@@ -150,6 +150,19 @@ class WayForPay
     }
 
     /**
+     * MODE_PURCHASE
+     * If GET redirect is used to redirect to purchase form, i.e.
+     * https://secure.wayforpay.com/pay/get?merchantAccount=test_merch_n1&merchantDomainName=domain.ua&merchantSignature=c6d08855677ec6beca68e292b2c3c6ae&orderReference=RG3656-1430373125&orderDate=1430373125&amount=0.16&currency=UAH&productName=Saturn%20BUE%201.2&productPrice=0.16&productCount=1&language=RU
+     *
+     * @param $fields
+     * @return string
+     */
+    public function generatePurchaseUrl($fields) {
+        $this->_prepare(self::MODE_PURCHASE, $fields);
+        return self::PURCHASE_URL.'/get?'.http_build_query($this->_params);
+    }
+
+    /**
      * Return signature hash
      *
      * @param $action
