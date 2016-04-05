@@ -7,6 +7,7 @@ class WayForPay
 {
     const PURCHASE_URL      = 'https://secure.wayforpay.com/pay';
     const API_URL           = 'https://api.wayforpay.com/api';
+    const WIDGET_URL        = 'https://secure.wayforpay.com/server/pay-widget.js';
     const FIELDS_DELIMITER  = ';';
     const API_VERSION       = 1;
     const DEFAULT_CHARSET   = 'utf8';
@@ -383,4 +384,37 @@ class WayForPay
         }
     }
 
+    /**
+     * @param array $fields Widget(https://wiki.wayforpay.com/pages/viewpage.action?pageId=852091)
+     * @param null $callbackFunction JavaScript callback function called on widget response
+     * @return string
+     */
+    public function buildWidgetButton(array $fields, $callbackFunction = null)
+    {
+        $this->_prepare(self::MODE_PURCHASE, $fields);
+
+        $button = '<script id="widget-wfp-script" language="javascript" type="text/javascript" src="'. self::WIDGET_URL .'"></script>
+        <script type="text/javascript">
+            var wayforpay = new Wayforpay();
+            var pay = function () {
+            wayforpay.run(' . json_encode($this->_params) . ');
+            }
+            window.addEventListener("message", '. ($callbackFunction ? $callbackFunction : "receiveMessage").');
+            function receiveMessage(event)
+            {
+                if(
+                    event.data == "WfpWidgetEventClose" ||      //при закрытии виджета пользователем
+                    event.data == "WfpWidgetEventApproved" ||   //при успешном завершении операции
+                    event.data == "WfpWidgetEventDeclined" ||   //при неуспешном завершении
+                    event.data == "WfpWidgetEventPending")      // транзакция на обработке
+                {
+                    console.log(event.data);
+                }
+            }
+        </script>
+        <button type="button" onclick="pay();">Оплатить</button>';
+
+        return $button;
+    }
 }
+
