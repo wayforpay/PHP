@@ -12,13 +12,14 @@ class WayForPay
     const API_VERSION       = 1;
     const DEFAULT_CHARSET   = 'utf8';
 
-    const MODE_PURCHASE     = 'PURCHASE';
-    const MODE_SETTLE       = 'SETTLE';
-    const MODE_CHARGE       = 'CHARGE';
-    const MODE_REFUND       = 'REFUND';
-    const MODE_CHECK_STATUS = 'CHECK_STATUS';
-    const MODE_P2P_CREDIT   = 'P2P_CREDIT';
+    const MODE_PURCHASE       = 'PURCHASE';
+    const MODE_SETTLE         = 'SETTLE';
+    const MODE_CHARGE         = 'CHARGE';
+    const MODE_REFUND         = 'REFUND';
+    const MODE_CHECK_STATUS   = 'CHECK_STATUS';
+    const MODE_P2P_CREDIT     = 'P2P_CREDIT';
     const MODE_CREATE_INVOICE = 'CREATE_INVOICE';
+    const MODE_P2_PHONE       = 'P2_PHONE';
 
     private $_merchant_account;
     private $_merchant_password;
@@ -118,6 +119,18 @@ class WayForPay
     public function createInvoice($fields)
     {
         $this->_prepare(self::MODE_CREATE_INVOICE, $fields);
+        return $this->_query();
+    }
+
+    /**
+     * MODE_P2P_CREDIT
+     *
+     * @param $fields
+     * @return mixed
+     */
+    public function account2phone($fields)
+    {
+        $this->_prepare(self::MODE_P2_PHONE, $fields);
         return $this->_query();
     }
 
@@ -351,6 +364,15 @@ class WayForPay
             case self::MODE_CREATE_INVOICE:
                 return $purchaseFieldsAlias;
                 break;
+            case self::MODE_P2_PHONE:
+                return array(
+                    'merchantAccount',
+                    'orderReference',
+                    'amount',
+                    'currency',
+                    'phone',
+                );
+                break;
             default:
                 throw new InvalidArgumentException('Unknown transaction type: '.$this->_action);
         }
@@ -451,6 +473,17 @@ class WayForPay
                     'productCount',
                     'productPrice',
                 );
+            case self::MODE_P2_PHONE:
+                return array(
+                    'merchantAccount',
+                    'orderReference',
+                    'orderDate',
+                    'currency',
+                    'amount',
+                    'phone',
+                    'apiVersion',
+                );
+                break;
             default:
                 throw new InvalidArgumentException('Unknown transaction type');
         }
