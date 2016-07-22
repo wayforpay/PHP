@@ -12,11 +12,14 @@ class WayForPay
     const API_VERSION       = 1;
     const DEFAULT_CHARSET   = 'utf8';
 
-    const MODE_PURCHASE     = 'PURCHASE';
-    const MODE_SETTLE       = 'SETTLE';
-    const MODE_CHARGE       = 'CHARGE';
-    const MODE_REFUND       = 'REFUND';
-    const MODE_CHECK_STATUS = 'CHECK_STATUS';
+    const MODE_PURCHASE       = 'PURCHASE';
+    const MODE_SETTLE         = 'SETTLE';
+    const MODE_CHARGE         = 'CHARGE';
+    const MODE_REFUND         = 'REFUND';
+    const MODE_CHECK_STATUS   = 'CHECK_STATUS';
+    const MODE_P2P_CREDIT     = 'P2P_CREDIT';
+    const MODE_CREATE_INVOICE = 'CREATE_INVOICE';
+    const MODE_P2_PHONE       = 'P2_PHONE';
 
     private $_merchant_account;
     private $_merchant_password;
@@ -96,6 +99,42 @@ class WayForPay
     }
 
     /**
+     * MODE_P2P_CREDIT
+     *
+     * @param $fields
+     * @return mixed
+     */
+    public function account2card($fields)
+    {
+        $this->_prepare(self::MODE_P2P_CREDIT, $fields);
+        return $this->_query();
+    }
+
+    /**
+     * MODE_P2P_CREDIT
+     *
+     * @param $fields
+     * @return mixed
+     */
+    public function createInvoice($fields)
+    {
+        $this->_prepare(self::MODE_CREATE_INVOICE, $fields);
+        return $this->_query();
+    }
+
+    /**
+     * MODE_P2P_CREDIT
+     *
+     * @param $fields
+     * @return mixed
+     */
+    public function account2phone($fields)
+    {
+        $this->_prepare(self::MODE_P2_PHONE, $fields);
+        return $this->_query();
+    }
+
+    /**
      * MODE_PURCHASE
      * Generate html form
      *
@@ -121,6 +160,19 @@ class WayForPay
         $form .= '<input type="submit" value="Submit purchase form"></form>';
 
         return $form;
+    }
+
+    /**
+     * MODE_PURCHASE
+     * If GET redirect is used to redirect to purchase form, i.e.
+     * https://secure.wayforpay.com/pay/get?merchantAccount=test_merch_n1&merchantDomainName=domain.ua&merchantSignature=c6d08855677ec6beca68e292b2c3c6ae&orderReference=RG3656-1430373125&orderDate=1430373125&amount=0.16&currency=UAH&productName=Saturn%20BUE%201.2&productPrice=0.16&productCount=1&language=RU
+     *
+     * @param $fields
+     * @return string
+     */
+    public function generatePurchaseUrl($fields) {
+        $this->_prepare(self::MODE_PURCHASE, $fields);
+        return self::PURCHASE_URL.'/get?'.http_build_query($this->_params);
     }
 
     /**
@@ -231,8 +283,6 @@ class WayForPay
 
     /**
      * Request method
-     *
-     * @param $fields
      * @return mixed
      */
     private function _query()
@@ -261,7 +311,7 @@ class WayForPay
      */
     private function _getFieldsNameForSignature()
     {
-        $purchuseFieldsAlias = array(
+        $purchaseFieldsAlias = array(
             'merchantAccount',
             'merchantDomainName',
             'orderReference',
@@ -275,7 +325,7 @@ class WayForPay
 
         switch ($this->_action) {
             case 'PURCHASE':
-                return $purchuseFieldsAlias;
+                return $purchaseFieldsAlias;
                 break;
             case 'REFUND':
                 return array(
@@ -291,7 +341,7 @@ class WayForPay
                 );
                 break;
             case 'CHARGE':
-                return $purchuseFieldsAlias;
+                return $purchaseFieldsAlias;
                 break;
             case 'SETTLE':
                 return array(
@@ -301,8 +351,30 @@ class WayForPay
                     'currency'
                 );
                 break;
+            case self::MODE_P2P_CREDIT:
+                return array(
+                    'merchantAccount',
+                    'orderReference',
+                    'amount',
+                    'currency',
+                    'cardBeneficiary',
+                    'rec2Token',
+                );
+                break;
+            case self::MODE_CREATE_INVOICE:
+                return $purchaseFieldsAlias;
+                break;
+            case self::MODE_P2_PHONE:
+                return array(
+                    'merchantAccount',
+                    'orderReference',
+                    'amount',
+                    'currency',
+                    'phone',
+                );
+                break;
             default:
-                throw new InvalidArgumentException('Unknown transaction type');
+                throw new InvalidArgumentException('Unknown transaction type: '.$this->_action);
         }
     }
 
@@ -379,6 +451,39 @@ class WayForPay
                     'orderReference',
                     'apiVersion'
                 );
+            case self::MODE_P2P_CREDIT:
+                return array(
+                    'transactionType',
+                    'merchantAccount',
+                    'orderReference',
+                    'amount',
+                    'currency',
+                    'cardBeneficiary',
+                    'merchantSignature',
+                );
+            case self::MODE_CREATE_INVOICE:
+                return array(
+                    'transactionType',
+                    'merchantAccount',
+                    'merchantDomainName',
+                    'orderReference',
+                    'amount',
+                    'currency',
+                    'productName',
+                    'productCount',
+                    'productPrice',
+                );
+            case self::MODE_P2_PHONE:
+                return array(
+                    'merchantAccount',
+                    'orderReference',
+                    'orderDate',
+                    'currency',
+                    'amount',
+                    'phone',
+                    'apiVersion',
+                );
+                break;
             default:
                 throw new InvalidArgumentException('Unknown transaction type');
         }
