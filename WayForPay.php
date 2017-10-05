@@ -12,14 +12,15 @@ class WayForPay
     const API_VERSION       = 1;
     const DEFAULT_CHARSET   = 'utf8';
 
-    const MODE_PURCHASE       = 'PURCHASE';
-    const MODE_SETTLE         = 'SETTLE';
-    const MODE_CHARGE         = 'CHARGE';
-    const MODE_REFUND         = 'REFUND';
-    const MODE_CHECK_STATUS   = 'CHECK_STATUS';
-    const MODE_P2P_CREDIT     = 'P2P_CREDIT';
-    const MODE_CREATE_INVOICE = 'CREATE_INVOICE';
-    const MODE_P2_PHONE       = 'P2_PHONE';
+    const MODE_PURCHASE         = 'PURCHASE';
+    const MODE_SETTLE           = 'SETTLE';
+    const MODE_CHARGE           = 'CHARGE';
+    const MODE_REFUND           = 'REFUND';
+    const MODE_CHECK_STATUS     = 'CHECK_STATUS';
+    const MODE_P2P_CREDIT       = 'P2P_CREDIT';
+    const MODE_CREATE_INVOICE   = 'CREATE_INVOICE';
+    const MODE_P2_PHONE         = 'P2_PHONE';
+    const MODE_TRANSACTION_LIST = 'TRANSACTION_LIST';
 
     private $_merchant_account;
     private $_merchant_password;
@@ -131,6 +132,18 @@ class WayForPay
     public function account2phone($fields)
     {
         $this->_prepare(self::MODE_P2_PHONE, $fields);
+        return $this->_query();
+    }
+
+    /**
+     * TRANSACTION_LIST
+     *
+     * @param $fields
+     * @return mixed
+     */
+    public function transactionList($fields)
+    {
+        $this->_prepare(self::MODE_TRANSACTION_LIST, $fields);
         return $this->_query();
     }
 
@@ -373,6 +386,13 @@ class WayForPay
                     'phone',
                 );
                 break;
+            case self::MODE_TRANSACTION_LIST:
+                return array(
+                    'merchantAccount',
+                    'dateBegin',
+                    'dateEnd',
+                );
+                break;
             default:
                 throw new InvalidArgumentException('Unknown transaction type: '.$this->_action);
         }
@@ -481,7 +501,13 @@ class WayForPay
                     'currency',
                     'amount',
                     'phone',
-                    'apiVersion',
+                );
+                break;
+            case self::MODE_TRANSACTION_LIST:
+                return array(
+                    'merchantAccount',
+                    'dateBegin',
+                    'dateEnd',
                 );
                 break;
             default:
