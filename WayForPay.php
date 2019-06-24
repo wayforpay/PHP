@@ -15,6 +15,7 @@ class WayForPay
     const MODE_PURCHASE         = 'PURCHASE';
     const MODE_SETTLE           = 'SETTLE';
     const MODE_CHARGE           = 'CHARGE';
+    const MODE_COMPLETE_3DS     = 'COMPLETE_3DS';
     const MODE_REFUND           = 'REFUND';
     const MODE_CHECK_STATUS     = 'CHECK_STATUS';
     const MODE_P2P_CREDIT       = 'P2P_CREDIT';
@@ -72,6 +73,18 @@ class WayForPay
     public function charge($fields)
     {
         $this->_prepare(self::MODE_CHARGE, $fields);
+        return $this->_query();
+    }
+
+    /**
+     * COMPLETE_3DS
+     *
+     * @param $fields
+     * @return mixed
+     */
+    public function complete3ds($fields)
+    {
+        $this->_prepare(self::MODE_COMPLETE_3DS, $fields);
         return $this->_query();
     }
 
