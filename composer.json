@@ -9,5 +9,10 @@
     },
     "suggest": {
         "ext-iconv": "*"
+    },
+    "autoload": {
+        "classmap": [
+            "WayForPay.php"
+        ]
     }
 }
