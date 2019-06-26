@@ -295,6 +295,10 @@ class WayForPay
         }
 
         if ( $this->_charset != self::DEFAULT_CHARSET) {
+            if (!function_exists('iconv')) {
+                throw new \RuntimeException('iconv extension required');
+            }
+
             foreach($data as $key => $value) {
                 $data[$key] = iconv($this->_charset, self::DEFAULT_CHARSET, $data[$key]);
             }
@@ -350,24 +354,31 @@ class WayForPay
         );
 
         switch ($this->_action) {
-            case 'PURCHASE':
+            case self::MODE_PURCHASE:
                 return $purchaseFieldsAlias;
                 break;
-            case 'REFUND':
+            case self::MODE_REFUND:
                 return array(
                     'merchantAccount',
                     'orderReference',
                     'amount',
                     'currency'
                 );
-            case 'CHECK_STATUS':
+            case self::MODE_CHECK_STATUS:
                 return array(
                     'merchantAccount',
                     'orderReference'
                 );
                 break;
-            case 'CHARGE':
+            case self::MODE_CHARGE:
                 return $purchaseFieldsAlias;
+                break;
+            case self::MODE_COMPLETE_3DS:
+                return array(
+                    'authorization_ticket',
+                    'd3ds_md',
+                    'd3ds_pares'
+                );
                 break;
             case 'SETTLE':
                 return array(
@@ -419,7 +430,7 @@ class WayForPay
     private function _getRequiredFields()
     {
         switch ($this->_action) {
-            case 'PURCHASE':
+            case self::MODE_PURCHASE:
                 return array(
                     'merchantAccount',
                     'merchantDomainName',
@@ -432,7 +443,7 @@ class WayForPay
                     'productCount',
                     'productPrice'
                 );
-            case 'SETTLE':
+            case self::MODE_SETTLE:
                 return array(
                     'transactionType',
                     'merchantAccount',
@@ -441,7 +452,7 @@ class WayForPay
                     'currency',
                     'apiVersion'
                 );
-            case 'CHARGE':
+            case self::MODE_CHARGE:
                 $required = array(
                     'transactionType',
                     'merchantAccount',
@@ -467,7 +478,14 @@ class WayForPay
                     array('card', 'expMonth', 'expYear', 'cardCvv', 'cardHolder');
 
                 return array_merge($required, $additional);
-            case 'REFUND':
+            case self::MODE_COMPLETE_3DS:
+                return array(
+                    'authorization_ticket',
+                    'd3ds_md',
+                    'd3ds_pares'
+                );
+                break;
+            case self::MODE_REFUND:
                 return array(
                     'transactionType',
                     'merchantAccount',
@@ -477,7 +495,7 @@ class WayForPay
                     'comment',
                     'apiVersion'
                 );
-            case 'CHECK_STATUS':
+            case self::MODE_CHECK_STATUS:
                 return array(
                     'transactionType',
                     'merchantAccount',

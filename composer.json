@@ -2,5 +2,12 @@
     "name": "wayforpay/php",
     "description": "Wayforpay PHP API",
     "license": "MIT",
-    "require": {}
+    "require": {
+        "php": ">=5.3.3",
+        "ext-json": "*",
+        "ext-curl": "*"
+    },
+    "suggest": {
+        "ext-iconv": "*"
+    }
 }
