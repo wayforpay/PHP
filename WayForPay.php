@@ -40,11 +40,11 @@ class WayForPay
     public function __construct($merchant_account, $merchant_password, $charset = self::DEFAULT_CHARSET)
     {
         if (!is_string($merchant_account) || $merchant_account === '') {
-            throw new InvalidArgumentException('Merchant account must be string and not empty');
+            throw new \InvalidArgumentException('Merchant account must be string and not empty');
         }
 
         if (!is_string($merchant_password) || $merchant_password === '') {
-            throw new InvalidArgumentException('Merchant password must be string and not empty');
+            throw new \InvalidArgumentException('Merchant password must be string and not empty');
         }
 
         $this->_merchant_account = $merchant_account;
@@ -218,14 +218,14 @@ class WayForPay
     /**
      * @param $action
      * @param array $params
-     * @throws InvalidArgumentException
+     * @throws \InvalidArgumentException
      */
     private function _prepare($action, array $params)
     {
         $this->_action = $action;
 
         if(empty($params)){
-            throw new InvalidArgumentException('Arguments must be not empty');
+            throw new \InvalidArgumentException('Arguments must be not empty');
         }
 
         $this->_params = $params;
@@ -244,7 +244,7 @@ class WayForPay
      *
      * @param $fields
      * @return bool
-     * @throws InvalidArgumentException
+     * @throws \InvalidArgumentException
      */
     private function _checkFields()
     {
@@ -262,7 +262,7 @@ class WayForPay
         }
 
         if (!empty($error)) {
-            throw new InvalidArgumentException('Missed required field(s): ' . implode(', ', $error) . '.');
+            throw new \InvalidArgumentException('Missed required field(s): ' . implode(', ', $error) . '.');
         }
 
         return true;
@@ -273,7 +273,7 @@ class WayForPay
      *
      * @param $fields
      * @return string
-     * @throws InvalidArgumentException
+     * @throws \InvalidArgumentException
      */
     private function _buildSignature()
     {
@@ -295,13 +295,17 @@ class WayForPay
         }
 
         if ( $this->_charset != self::DEFAULT_CHARSET) {
+            if (!function_exists('iconv')) {
+                throw new \RuntimeException('iconv extension required');
+            }
+
             foreach($data as $key => $value) {
                 $data[$key] = iconv($this->_charset, self::DEFAULT_CHARSET, $data[$key]);
             }
         }
 
         if (!empty($error)) {
-            throw new InvalidArgumentException('Missed signature field(s): ' . implode(', ', $error) . '.');
+            throw new \InvalidArgumentException('Missed signature field(s): ' . implode(', ', $error) . '.');
         }
 
         return hash_hmac('md5', implode(self::FIELDS_DELIMITER, $data), $this->_merchant_password);
@@ -333,7 +337,7 @@ class WayForPay
      * Signature fields
      *
      * @return array
-     * @throws InvalidArgumentException
+     * @throws \InvalidArgumentException
      */
     private function _getFieldsNameForSignature()
     {
@@ -350,24 +354,31 @@ class WayForPay
         );
 
         switch ($this->_action) {
-            case 'PURCHASE':
+            case self::MODE_PURCHASE:
                 return $purchaseFieldsAlias;
                 break;
-            case 'REFUND':
+            case self::MODE_REFUND:
                 return array(
                     'merchantAccount',
                     'orderReference',
                     'amount',
                     'currency'
                 );
-            case 'CHECK_STATUS':
+            case self::MODE_CHECK_STATUS:
                 return array(
                     'merchantAccount',
                     'orderReference'
                 );
                 break;
-            case 'CHARGE':
+            case self::MODE_CHARGE:
                 return $purchaseFieldsAlias;
+                break;
+            case self::MODE_COMPLETE_3DS:
+                return array(
+                    'authorization_ticket',
+                    'd3ds_md',
+                    'd3ds_pares'
+                );
                 break;
             case 'SETTLE':
                 return array(
@@ -407,7 +418,7 @@ class WayForPay
                 );
                 break;
             default:
-                throw new InvalidArgumentException('Unknown transaction type: '.$this->_action);
+                throw new \InvalidArgumentException('Unknown transaction type: '.$this->_action);
         }
     }
 
@@ -419,7 +430,7 @@ class WayForPay
     private function _getRequiredFields()
     {
         switch ($this->_action) {
-            case 'PURCHASE':
+            case self::MODE_PURCHASE:
                 return array(
                     'merchantAccount',
                     'merchantDomainName',
@@ -432,7 +443,7 @@ class WayForPay
                     'productCount',
                     'productPrice'
                 );
-            case 'SETTLE':
+            case self::MODE_SETTLE:
                 return array(
                     'transactionType',
                     'merchantAccount',
@@ -441,7 +452,7 @@ class WayForPay
                     'currency',
                     'apiVersion'
                 );
-            case 'CHARGE':
+            case self::MODE_CHARGE:
                 $required = array(
                     'transactionType',
                     'merchantAccount',
@@ -467,7 +478,14 @@ class WayForPay
                     array('card', 'expMonth', 'expYear', 'cardCvv', 'cardHolder');
 
                 return array_merge($required, $additional);
-            case 'REFUND':
+            case self::MODE_COMPLETE_3DS:
+                return array(
+                    'authorization_ticket',
+                    'd3ds_md',
+                    'd3ds_pares'
+                );
+                break;
+            case self::MODE_REFUND:
                 return array(
                     'transactionType',
                     'merchantAccount',
@@ -477,7 +495,7 @@ class WayForPay
                     'comment',
                     'apiVersion'
                 );
-            case 'CHECK_STATUS':
+            case self::MODE_CHECK_STATUS:
                 return array(
                     'transactionType',
                     'merchantAccount',
@@ -524,7 +542,7 @@ class WayForPay
                 );
                 break;
             default:
-                throw new InvalidArgumentException('Unknown transaction type');
+                throw new \InvalidArgumentException('Unknown transaction type');
         }
     }
 

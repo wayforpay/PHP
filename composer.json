@@ -1,6 +1,28 @@
 {
     "name": "wayforpay/php",
+    "type": "library",
+    "keywords": ["WayForPay","pay","psp"],
     "description": "Wayforpay PHP API",
+    "homepage": "https://github.com/wayforpay/PHP",
     "license": "MIT",
-    "require": {}
+    "authors": [
+        {
+            "name": "WayForPay",
+            "email": "support@wayforpay.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "ext-json": "*",
+        "ext-curl": "*"
+    },
+    "suggest": {
+        "ext-iconv": "*"
+    },
+    "autoload": {
+        "classmap": [
+            "./WayForPay.php"
+        ]
+    }
 }
