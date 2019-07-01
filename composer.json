@@ -12,6 +12,7 @@
             "role": "Developer"
         }
     ],
+    "abandoned": "wayforpay/php-sdk",
     "require": {
         "php": ">=5.3.0",
         "ext-json": "*",
